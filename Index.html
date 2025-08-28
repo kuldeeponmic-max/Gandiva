@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GANDIVA - Premium Movie Streaming</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #e50914;
+            --dark: #141414;
+            --light: #f5f5f5;
+            --gray: #808080;
+            --overlay: rgba(0, 0, 0, 0.7);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--light);
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        /* Header & Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+            transition: background 0.3s;
+        }
+        
+        header.scrolled {
+            background: var(--dark);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+        }
+        
+        nav ul {
+            display: flex;
+        }
+        
+        nav ul li {
+            margin: 0 15px;
+        }
+        
+        nav ul li a {
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-right: 20px;
+        }
+        
+        .search-box input {
+            background: transparent;
+            border: 1px solid var(--gray);
+            padding: 8px 15px;
+            border-radius: 4px;
+            color: var(--light);
+            width: 0;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .search-box input.active {
+            width: 220px;
+            opacity: 1;
+        }
+        
+        .search-btn {
+            cursor: pointer;
+        }
+        
+        .user-account {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .user-account img {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 80vh;
+            position: relative;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('https://source.unsplash.com/random/1920x1080/?movie') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            padding: 0 60px;
+            margin-bottom: 20px;
+        }
+        
+        .hero-content {
+            max-width: 600px;
+            z-index: 1;
+        }
+        
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .hero-content p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #f40612;
+        }
+        
+        .btn-secondary {
+            background-color: rgba(109, 109, 110, 0.7);
+            color: white;
+            border: none;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(109, 109, 110, 0.5);
+        }
+        
+        /* Content Sections */
+        .section-title {
+            font-size: 20px;
+            margin: 30px 0 15px 40px;
+        }
+        
+        .movie-row {
+            position: relative;
+            padding: 0 40px;
+            margin-bottom: 40px;
+        }
+        
+        .movie-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 15px 0;
+            gap: 10px;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .movie-slider::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
+        
+        .movie-card {
+            flex: 0 0 auto;
+            width: 220px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .movie-card:hover {
+            transform: scale(1.08);
+            z-index: 2;
+        }
+        
+        .movie-card img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        .movie-info {
+            position: absolute;
+            bottom: 0;
+            background: var(--overlay);
+            width: 100%;
+            padding: 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .movie-card:hover .movie-info {
+            opacity: 1;
+        }
+        
+        .movie-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .movie-desc {
+            font-size: 12px;
+            color: #ddd;
+        }
+        
+        /* Slider Controls */
+        .slider-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--overlay);
+            width: 40px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .slider-control.left {
+            left: 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .slider-control.right {
+            right: 0;
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .movie-row:hover .slider-control {
+            opacity: 1;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #000;
+            padding: 40px;
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-section h3 {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-section ul li a {
+            color: #ddd;
+            font-size: 14px;
+        }
+        
+        .footer-section ul li a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .social-icons a {
+            font-size: 20px;
+        }
+        
+        .copyright {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        /* Video Player Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: var(--dark);
+            width: 80%;
+            max-width: 900px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #000;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .player-container {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .player-controls {
+            padding: 15px 20px;
+            background: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .quality-selector, .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quality-selector select, .language-selector select {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 100%;
+            background: #191919;
+            z-index: 1500;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .admin-title {
+            font-size: 20px;
+            color: var(--primary);
+        }
+        
+        .close-admin {
+            font-size: 22px;
+            cursor: pointer;
+        }
+        
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            color: #ddd;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background: #000;
+            color: white;
+        }
+        
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .admin-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+            }
+            
+            nav ul li {
+                margin: 0 10px;
+            }
+            
+            .hero {
+                height: 70vh;
+                padding: 0 20px;
+            }
+            
+            .hero-content h1 {
+                font-size: 32px;
+            }
+            
+            .section-title, .movie-row {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            
+            .movie-card {
+                width: 160px;
+            }
+            
+            .footer-section {
+                min-width: 50%;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            nav ul li {
+                margin: 0 5px;
+                font-size: 14px;
+            }
+            
+            .search-box {
+                margin-right: 10px;
+            }
+            
+            .search-box input.active {
+                width: 150px;
+            }
+            
+            .hero-content h1 {
+                font-size: 28px;
+            }
+            
+            .hero-content p {
+                font-size: 16px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            
+            .movie-card {
+                width: 140px;
+            }
+            
+            .footer-section {
+                min-width: 100%;
+            }
+            
+            .admin-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-play-circle"></i>
+            GANDIVA
+        </div>
+        
+        <nav>
+            <ul>
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">Movies</a></li>
+                <li><a href="#">TV Shows</a></li>
+                <li><a href="#">New & Popular</a></li>
+                <li><a href="#">My List</a></li>
+            </ul>
+        </nav>
+        
+        <div class="nav-right">
+            <div class="search-box">
+                <input type="text" placeholder="Search...">
+                <i class="fas fa-search search-btn"></i>
+            </div>
+            <div class="user-account">
+                <img src="https://i.pravatar.cc/32" alt="User">
+                <span>Admin</span>
+            </div>
+            <div class="admin-toggle">
+                <i class="fas fa-cog"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>RRR</h1>
+            <p>A tale of two legendary revolutionaries and their journey away from home before they started fighting for their country in the 1920s.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
+                <button class="btn btn-secondary"><i class="fas fa-info-circle"></i> More Info</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Movie Content Sections -->
+    <h2 class="section-title">Trending Now</h2>
+    <div class="movie-row">
+        <div class="slider-control left">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="movie-slider">
+            <div class="movie-card" data-video-id="jG0WZg2JSTQ">
+                <img src="https://source.unsplash.com/random/300x450/?movie,action" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Action Movie</div>
+                    <div class="movie-desc">2022 • Action • 2h 15m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="tYB5z2R0PqU">
+                <img src="https://source.unsplash.com/random/300x450/?movie,adventure" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Adventure Time</div>
+                    <div class="movie-desc">2021 • Adventure • 1h 48m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="5l6Kp6O8TYY">
+                <img src="https://source.unsplash.com/random/300x450/?movie,comedy" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Comedy Nights</div>
+                    <div class="movie-desc">2023 • Comedy • 1h 35m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="u5Wg8fL4X18">
+                <img src="https://source.unsplash.com/random/300x450/?movie,drama" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Drama World</div>
+                    <div class="movie-desc">2022 • Drama • 2h 5m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="d9MyW72ELq0">
+                <img src="https://source.unsplash.com/random/300x450/?movie,horror" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Horror Story</div>
+                    <div class="movie-desc">2023 • Horror • 1h 52m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="AVy-Q6xQBUo">
+                <img src="https://source.unsplash.com/random/300x450/?movie,sci-fi" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Sci-Fi Adventure</div>
+                    <div class="movie-desc">2022 • Sci-Fi • 2h 28m</div>
+                </div>
+            </div>
+        </div>
+        <div class="slider-control right">
+            <i class="fas fa-chevron-right"></i>
+        </div>
+    </div>
+
+    <h2 class="section-title">Popular on Gandiva</h2>
+    <div class="movie-row">
+        <div class="slider-control left">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="movie-slider">
+            <div class="movie-card" data-video-id="JfVOs4VSpmA">
+                <img src="https://source.unsplash.com/random/300x450/?movie,popular" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Popular Choice</div>
+                    <div class="movie-desc">2023 • Drama • 2h 12m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="SPcX4twBzZE">
+                <img src="https://source.unsplash.com/random/300x450/?movie,thriller" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Thriller Night</div>
+                    <div class="movie-desc">2022 • Thriller • 1h 58m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="m6V6lH50gYM">
+                <img src="https://source.unsplash.com/random/300x450/?movie,romance" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Romantic Tale</div>
+                    <div class="movie-desc">2023 • Romance • 2h 5m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="5Peo-ivmupE">
+                <img src="https://source.unsplash.com/random/300x450/?movie,fantasy" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Fantasy World</div>
+                    <div class="movie-desc">2022 • Fantasy • 2h 22m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="wyzO2vxyLqk">
+                <img src="https://source.unsplash.com/random/300x450/?movie,animation" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Animated Story</div>
+                    <div class="movie-desc">2023 • Animation • 1h 45m</div>
+                </div>
+            </div>
+            <div class="movie-card" data-video-id="8ugaeA-nMTc">
+                <img src="https://source.unsplash.com/random/300x450/?movie,documentary" alt="Movie">
+                <div class="movie-info">
+                    <div class="movie-title">Documentary</div>
+                    <div class="movie-desc">2022 • Documentary • 1h 35m</div>
+                </div>
+            </div>
+        </div>
+        <div class="slider-control right">
+            <i class="fas fa-chevron-right"></i>
+        </div>
+    </div>
+
+    <!-- More sections would go here -->
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Movies</a></li>
+                    <li><a href="#">TV Shows</a></li>
+                    <li><a href="#">New & Popular</a></li>
+                    <li><a href="#">My List</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Preferences</a></li>
+                    <li><a href="#">Corporate Information</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Help</h3>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Devices</a></li>
+                    <li><a href="#">Account</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 GANDIVA Streaming Service. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Video Player Modal -->
+    <div class="modal" id="playerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalMovieTitle">Movie Title</div>
+                <div class="close-modal">&times;</div>
+            </div>
+            <div class="player-container">
+                <div id="player"></div>
+            </div>
+            <div class="player-controls">
+                <div class="quality-selector">
+                    <label for="quality">Quality:</label>
+                    <select id="quality">
+                        <option value="auto">Auto</option>
+                        <option value="hd1080">1080p</option>
+                        <option value="hd720">720p</option>
+                        <option value="large">480p</option>
+                        <option value="medium">360p</option>
+                        <option value="small">240p</option>
+                    </select>
+                </div>
+                <div class="language-selector">
+                    <label for="language">Audio:</label>
+                    <select id="language">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="te">Telugu</option>
+                        <option value="ta">Tamil</option>
+                        <option value="ml">Malayalam</option>
+                        <option value="kn">Kannada</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <div class="admin-title">Admin Panel</div>
+            <div class="close-admin">&times;</div>
+        </div>
+        <form class="admin-form">
+            <div class="form-group">
+                <label for="movieTitle">Movie Title</label>
+                <input type="text" id="movieTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="movieDescription">Description</label>
+                <textarea id="movieDescription" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="movieCategory">Category</label>
+                <select id="movieCategory">
+                    <option value="action">Action</option>
+                    <option value="comedy">Comedy</option>
+                    <option value="drama">Drama</option>
+                    <option value="horror">Horror</option>
+                    <option value="sci-fi">Sci-Fi</option>
+                    <option value="romance">Romance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="movieYear">Release Year</label>
+                <input type="number" id="movieYear" min="1900" max="2030" required>
+            </div>
+            <div class="form-group">
+                <label for="movieDuration">Duration (minutes)</label>
+                <input type="number" id="movieDuration" required>
+            </div>
+            <div class="form-group">
+                <label for="youtubeId">YouTube Video ID</label>
+                <input type="text" id="youtubeId" required>
+            </div>
+            <div class="form-group">
+                <label for="movieThumbnail">Thumbnail URL</label>
+                <input type="url" id="movieThumbnail" required>
+            </div>
+            <button type="submit" class="admin-btn">Add Movie</button>
+        </form>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // DOM Elements
+        const header = document.querySelector('header');
+        const searchBox = document.querySelector('.search-box input');
+        const searchBtn = document.querySelector('.search-btn');
+        const adminToggle = document.querySelector('.admin-toggle');
+        const adminPanel = document.getElementById('adminPanel');
+        const closeAdmin = document.querySelector('.close-admin');
+        const adminForm = document.querySelector('.admin-form');
+        const playerModal = document.getElementById('playerModal');
+        const closeModal = document.querySelector('.close-modal');
+        const movieCards = document.querySelectorAll('.movie-card');
+        const modalMovieTitle = document.getElementById('modalMovieTitle');
+        const qualitySelector = document.getElementById('quality');
+        const languageSelector = document.getElementById('language');
+        
+        // YouTube Player API
+        let player;
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Search box toggle
+        searchBtn.addEventListener('click', () => {
+            searchBox.classList.toggle('active');
+            if (searchBox.classList.contains('active')) {
+                searchBox.focus();
+            }
+        });
+        
+        // Admin panel toggle
+        adminToggle.addEventListener('click', () => {
+            adminPanel.style.display = 'block';
+        });
+        
+        closeAdmin.addEventListener('click', () => {
+            adminPanel.style.display = 'none';
+        });
+        
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            playerModal.style.display = 'none';
+            if (player && player.stopVideo) {
+                player.stopVideo();
+            }
+        });
+        
+        // Click outside modal to close
+        window.addEventListener('click', (e) => {
+            if (e.target === playerModal) {
+                playerModal.style.display = 'none';
+                if (player && player.stopVideo) {
+                    player.stopVideo();
+                }
+            }
+        });
+        
+        // Movie card click event
+        movieCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const videoId = card.getAttribute('data-video-id');
+                const movieTitle = card.querySelector('.movie-title').textContent;
+                
+                modalMovieTitle.textContent = movieTitle;
+                playerModal.style.display = 'flex';
+                
+                // Initialize YouTube player if not already initialized
+                if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+                    // Load YouTube IFrame API
+                    const tag = document.createElement('script');
+                    tag.src = "https://www.youtube.com/iframe_api";
+                    const firstScriptTag = document.getElementsByTagName('script')[0];
+                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                    
+                    // Create player once API is ready
+                    window.onYouTubeIframeAPIReady = function() {
+                        player = new YT.Player('player', {
+                            height: '100%',
+                            width: '100%',
+                            videoId: videoId,
+                            playerVars: {
+                                'playsinline': 1,
+                                'controls': 1,
+                                'rel': 0,
+                                'modestbranding': 1
+                            },
+                            events: {
+                                'onReady': onPlayerReady
+                            }
+                        });
+                    };
+                } else if (player && player.loadVideoById) {
+                    // Player already exists, just load new video
+                    player.loadVideoById(videoId);
+                }
+            });
+        });
+        
+        // Player ready event
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+        
+        // Quality change handler
+        qualitySelector.addEventListener('change', () => {
+            // In a real implementation, this would change the video quality
+            console.log('Quality changed to:', qualitySelector.value);
+            // For YouTube, quality is usually set automatically based on user's connection
+            // but we can suggest quality (this requires additional implementation)
+        });
+        
+        // Language change handler
+        languageSelector.addEventListener('change', () => {
+            // In a real implementation, this would change the audio track
+            console.log('Language changed to:', languageSelector.value);
+            // For YouTube, this requires the video to have multiple audio tracks
+            // which is a feature available to certain partners
+        });
+        
+        // Admin form submission
+        adminForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get form values
+            const movieData = {
+                title: document.getElementById('movieTitle').value,
+                description: document.getElementById('movieDescription').value,
+                category: document.getElementById('movieCategory').value,
+                year: document.getElementById('movieYear').value,
+                duration: document.getElementById('movieDuration').value,
+                youtubeId: document.getElementById('youtubeId').value,
+                thumbnail: document.getElementById('movieThumbnail').value
+            };
+            
+            // In a real application, you would send this data to a server
+            // For this demo, we'll just log it and show an alert
+            console.log('New movie added:', movieData);
+            alert(`Movie "${movieData.title}" added successfully!`);
+            
+            // Reset form
+            adminForm.reset();
+        });
+        
+        // Slider functionality
+        const sliders = document.querySelectorAll('.movie-slider');
+        const leftControls = document.querySelectorAll('.slider-control.left');
+        const rightControls = document.querySelectorAll('.slider-control.right');
+        
+        leftControls.forEach((control, index) => {
+            control.addEventListener('click', () => {
+                sliders[index].scrollBy({ left: -300, behavior: 'smooth' });
+            });
+        });
+        
+        rightControls.forEach((control, index) => {
+            control.addEventListener('click', () => {
+                sliders[index].scrollBy({ left: 300, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
